@@ -2,20 +2,48 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import { StdioServerTransport } from "../../node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js";
-import { createFileTool } from "./tools.js";
-import { createFiletoolSchema } from "./toolSchemas.js";
+import { createDirectoryTool, createFileTool, listDirectoryTool, overwriteFileTool, readFileTool } from "./tools.js";
+import { createDirectoryTool as createDirectoryToolSchema, createFiletoolSchema, listDirectoryTool as listDirectoryToolSchema, overwriteFileTool as overwriteFileToolSchema, readFileTool as readFileToolSchema } from "./toolSchemas.js";
 
 // Initialize the MCP server with a name and version.
 const server = new McpServer({
     name: "mcp file server", version: "1.0.0",
 });
 
-// Register a tool that returns a single programming joke string.
+// Register tools for filesystem operations.
 server.registerTool(
     "createFileTool", 
     createFiletoolSchema,
     // @ts-ignore
     createFileTool
+);
+
+server.registerTool(
+    "overwriteFileTool",
+    overwriteFileToolSchema,
+    // @ts-ignore
+    overwriteFileTool
+);
+
+server.registerTool(
+    "createDirectoryTool",
+    createDirectoryToolSchema,
+    // @ts-ignore
+    createDirectoryTool
+);
+
+server.registerTool(
+    "readFileTool",
+    readFileToolSchema,
+    // @ts-ignore
+    readFileTool
+);
+
+server.registerTool(
+    "listDirectoryTool",
+    listDirectoryToolSchema,
+    // @ts-ignore
+    listDirectoryTool
 );
 
 // Start the server using stdio transport so it can be launched as a child process.
