@@ -1,4 +1,4 @@
-// Filesystem tools for the assistant (create, read, list, and directory management under AgentCreatedFiles).
+// Filesystem tools for the assistant (create, read, list, and directory management under AgentFiles).
 // These helpers return user-friendly status strings instead of throwing on common failures.
 import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 // Path utilities keep us OS-agnostic and help prevent traversal attacks.
@@ -7,7 +7,7 @@ import path from "node:path";
 const textResult = (text: string) => ({ type: "text", text });
 
 
-// Creates a file under AgentCreatedFiles, returning a confirmation-needed status if it exists.
+// Creates a file under AgentFiles, returning a confirmation-needed status if it exists.
 export const createFileTool = async ({ fileName, content }: { fileName: string, content: string }) => {
     console.error("Creating file:", fileName);
 
@@ -19,7 +19,7 @@ export const createFileTool = async ({ fileName, content }: { fileName: string, 
         }
 
         // Ensure the base directory exists.
-        const baseDir = path.join(process.cwd(), "AgentCreatedFiles");
+        const baseDir = path.join(process.cwd(), "AgentFiles");
         await mkdir(baseDir, { recursive: true });
 
         // Resolve the target path within the base directory.
@@ -45,7 +45,7 @@ export const createFileTool = async ({ fileName, content }: { fileName: string, 
     }
 }
 
-// Overwrites an existing file (or creates it if missing) under AgentCreatedFiles.
+// Overwrites an existing file (or creates it if missing) under AgentFiles.
 export const overwriteFileTool = async ({fileName, content}: {fileName: string, content: string}) => {
     console.error("Overwriting file:", fileName);
 
@@ -55,7 +55,7 @@ export const overwriteFileTool = async ({fileName, content}: {fileName: string, 
             return textResult("Error: file name cannot be empty.");
         }
 
-        const baseDir = path.join(process.cwd(), "AgentCreatedFiles");
+        const baseDir = path.join(process.cwd(), "AgentFiles");
         await mkdir(baseDir, { recursive: true });
 
         const targetPath = path.join(baseDir, trimmedName);
@@ -70,7 +70,7 @@ export const overwriteFileTool = async ({fileName, content}: {fileName: string, 
     }
 }
 
-// Creates a directory under AgentCreatedFiles and returns a status message.
+// Creates a directory under AgentFiles and returns a status message.
 export const createDirectoryTool = async ({dirName}: {dirName: string}) => {
     console.error("Creating directory:", dirName);
 
@@ -82,7 +82,7 @@ export const createDirectoryTool = async ({dirName}: {dirName: string}) => {
         }
 
         // Resolve and create the directory under the base directory.
-        const baseDir = path.join(process.cwd(), "AgentCreatedFiles");
+        const baseDir = path.join(process.cwd(), "AgentFiles");
         const targetPath = path.join(baseDir, trimmedName);
         // Report existence instead of returning a path.
         const exists = await access(targetPath).then(() => true).catch(() => false);
@@ -105,7 +105,7 @@ export const createDirectoryTool = async ({dirName}: {dirName: string}) => {
     }
 }
 
-// Reads a text file from AgentCreatedFiles with traversal protection.
+// Reads a text file from AgentFiles with traversal protection.
 export const readFileTool = async ({filePath}: {filePath: string}) => {
     console.error("Reading file:", filePath);
 
@@ -117,7 +117,7 @@ export const readFileTool = async ({filePath}: {filePath: string}) => {
         }
 
         // Resolve within the base directory and ensure the result does not escape it.
-        const baseDir = path.join(process.cwd(), "AgentCreatedFiles");
+        const baseDir = path.join(process.cwd(), "AgentFiles");
         const resolvedPath = path.resolve(baseDir, trimmedPath);
 
         // Basic path traversal guard.
@@ -127,6 +127,8 @@ export const readFileTool = async ({filePath}: {filePath: string}) => {
 
         // Read file as UTF-8 text; throws on missing files or permissions.
         const contents = await readFile(resolvedPath, "utf8");
+
+        console.error("file read successfully");
         return textResult(contents);
     } catch (error) {
         // Convert missing file into a friendly message for the assistant.
@@ -142,7 +144,7 @@ export const readFileTool = async ({filePath}: {filePath: string}) => {
     }
 }
 
-// Lists files and folders under AgentCreatedFiles with traversal protection.
+// Lists files and folders under AgentFiles with traversal protection.
 export const listDirectoryTool = async ({dirPath}: {dirPath: string}) => {
     console.error("Listing directory:", dirPath);
 
@@ -152,7 +154,7 @@ export const listDirectoryTool = async ({dirPath}: {dirPath: string}) => {
             return textResult("Error: directory path cannot be empty.");
         }
 
-        const baseDir = path.join(process.cwd(), "AgentCreatedFiles");
+        const baseDir = path.join(process.cwd(), "AgentFiles");
         const resolvedPath = path.resolve(baseDir, trimmedPath);
 
         if (resolvedPath !== baseDir && !resolvedPath.startsWith(baseDir + path.sep)) {
