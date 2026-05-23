@@ -4,7 +4,10 @@ import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 // Path utilities keep us OS-agnostic and help prevent traversal attacks.
 import path from "node:path";
 
-const textResult = (text: string) => ({ type: "text", text });
+const textResult = (text: string) => ({
+    content: [{ type: "text", text }],
+    structuredContent: { text },
+});
 
 
 // Creates a file under AgentFiles, returning a confirmation-needed status if it exists.
@@ -127,8 +130,6 @@ export const readFileTool = async ({filePath}: {filePath: string}) => {
 
         // Read file as UTF-8 text; throws on missing files or permissions.
         const contents = await readFile(resolvedPath, "utf8");
-
-        console.error("file read successfully");
         return textResult(contents);
     } catch (error) {
         // Convert missing file into a friendly message for the assistant.

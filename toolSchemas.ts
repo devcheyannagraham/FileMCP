@@ -8,7 +8,9 @@ export const createFiletoolSchema =
         fileName: z.string().describe("The name of the file to be created."),
         content: z.string().describe("The content to be written to the file.")
     }),
-    outputSchema: z.string().describe("The result of the file creation operation, indicating success or failure."),
+    outputSchema: z.object({
+        text: z.string().describe("The result of the file creation operation, indicating success or failure."),
+    }),
 };
 
 
@@ -19,7 +21,9 @@ export const overwriteFileTool =
         fileName: z.string().describe("The name of the file to be overwritten."),
         content: z.string().describe("The content to be written to the file.")
     }),
-    outputSchema: z.string().describe("The result of the file overwrite operation, indicating success or failure."),
+    outputSchema: z.object({
+        text: z.string().describe("The result of the file overwrite operation, indicating success or failure."),
+    }),
 };
 
 
@@ -29,7 +33,9 @@ export const createDirectoryTool =
     inputSchema: z.object({
         dirName: z.string().describe("The name of the directory to be created.")
     }),
-    outputSchema: z.string().describe("The result of the directory creation operation, indicating success or failure."),
+    outputSchema: z.object({
+        text: z.string().describe("The result of the directory creation operation, indicating success or failure."),
+    }),
 };
 
 
@@ -39,7 +45,9 @@ export const readFileTool =
     inputSchema: z.object({
         filePath: z.string().describe("The path to the file to read, relative to the 'AgentFiles' directory.")
     }),
-    outputSchema: z.string().describe("The contents of the file or an error message."),
+    outputSchema: z.object({
+        text: z.string().describe("The contents of the file or an error message."),
+    }),
 };
 
 
@@ -49,5 +57,7 @@ export const listDirectoryTool =
     inputSchema: z.object({
         dirPath: z.string().describe("The directory path to list, relative to the 'AgentFiles' directory.")
     }),
-    outputSchema: z.string().describe("A newline-delimited list of entries or an error message."),
+    outputSchema: z.object({
+        text: z.string().describe("A newline-delimited list of entries or an error message."),
+    }),
 };
