@@ -1,86 +1,70 @@
 # FileMCP
 
-Minimal MCP (Model Context Protocol) file server for safe file operations under a local `AgentFiles` directory.
+FileMCP is a small Model Context Protocol (MCP) file server for AI Agents.
 
-## What This Project Does
+It includes both:
 
-This project exposes filesystem tools over MCP using a stdio transport.
+- an MCP server that exposes controlled file tools
+- a client wrapper that starts and connects to that server from agent code
 
-The server supports:
-- Creating files
-- Overwriting files
-- Creating directories
-- Reading files
-- Listing directories
+The server exposes simple file operations under an `AgentFiles` folder.
 
-All reads/lists are constrained to `AgentFiles` and include basic path traversal protection.
+## What It Does
 
-## Project Structure
+FileMCP exposes these MCP tools:
 
-- `server.ts`: MCP server setup and tool registration.
-- `tools.ts`: Tool implementations for filesystem operations.
-- `toolSchemas.ts`: Zod input/output schemas for each tool.
-- `mcpclient.ts`: Singleton MCP stdio client wrapper for use with agent runtimes.
+- `createFileTool`: creates a new file under `AgentFiles` and refuses to silently overwrite an existing file.
+- `overwriteFileTool`: writes or replaces a file under `AgentFiles`.
+- `createDirectoryTool`: creates a directory under `AgentFiles`.
+- `readFileTool`: reads a UTF-8 text file from `AgentFiles`.
+- `listDirectoryTool`: lists files and folders under `AgentFiles`.
+
+The read and list tools include path traversal checks so requests cannot escape the `AgentFiles` directory.
 
 ## Requirements
 
 - Node.js 18+
 - npm
 
-## Install
+## Install FileMCP
+
+From your root directory:
 
 ```bash
-npm install
+npm install --save https://github.com/devcheyannagraham/FileMCP.git
 ```
 
-If `tsx` is not globally available, run with `npx tsx` as shown below.
+## Use With An Agent
 
-## Run The MCP Server
+This repo includes `mcpclient.ts`, which is the primary integration point for agent code. It creates a singleton MCP SDK `Client` using `StdioClientTransport`.
 
-```bash
-npx tsx server.ts
-```
-
-The server runs on stdio and logs status messages to stderr.
-
-## Available Tools
-
-All tools return text payloads in MCP response content.
-
-1. `createFileTool`
-- Input: `fileName`, `content`
-- Behavior: Creates a file under `AgentFiles`; returns overwrite confirmation text if file exists.
-
-2. `overwriteFileTool`
-- Input: `fileName`, `content`
-- Behavior: Writes content under `AgentFiles`, replacing existing content.
-
-3. `createDirectoryTool`
-- Input: `dirName`
-- Behavior: Creates a directory under `AgentFiles`.
-
-4. `readFileTool`
-- Input: `filePath`
-- Behavior: Reads UTF-8 file content from `AgentFiles` with traversal checks.
-
-5. `listDirectoryTool`
-- Input: `dirPath`
-- Behavior: Lists directory entries from `AgentFiles` with traversal checks.
-
-## Using The Client Wrapper
-
-`mcpclient.ts` provides a singleton MCP SDK `Client` backed by `StdioClientTransport` and connects once:
+In your agent project, import the client wrapper and pass it into your agent config:
 
 ```ts
-import { filemcp } from "./mcpclient.js";
+import { filemcp } from "filemcp/mcpclient.ts";
+import { agent } from "<your-agent-sdk>";
 
-await filemcp.listTools();
+const myAgent = agent({
+  mcpServer: filemcp,
+});
 ```
 
-The wrapper now uses only `@modelcontextprotocol/sdk` (no OpenAI Agents dependency).
 
-## Notes
 
-- Server version: `1.0.0`
-- Server name: `mcp file server`
-- Base working directory for tools: `<repo>/AgentFiles`
+## File Operations
+File operations are relative to an `AgentFiles` folder in the working directory.
+Asking the agent to read file.txt actually reads AgentFiles/file.txt.
+Same with writes.
+
+Ensure there is a folder called 'Agent Directory' in the root directory for the agent to read. 
+
+The code is simple and you can change this locally if you want. :)
+
+
+
+## Project Files
+
+- `server.ts`: creates the MCP server, registers tools, and starts stdio transport.
+- `tools.ts`: implements the filesystem tools.
+- `toolSchemas.ts`: defines tool descriptions and Zod schemas.
+- `mcpclient.ts`: MCP SDK client wrapper used by agent code to start and connect to the server.
