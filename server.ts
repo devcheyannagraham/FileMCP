@@ -1,7 +1,8 @@
 // Create a simple MCP server that listens for stdin/stdout connections and returns a joke.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
-import { StdioServerTransport } from "../../node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js";
+// import { StdioServerTransport } from "../../node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio";
 import { createDirectoryTool, createFileTool, listDirectoryTool, overwriteFileTool, readFileTool } from "./tools.js";
 import { createDirectoryTool as createDirectoryToolSchema, createFiletoolSchema, listDirectoryTool as listDirectoryToolSchema, overwriteFileTool as overwriteFileToolSchema, readFileTool as readFileToolSchema } from "./toolSchemas.js";
 
