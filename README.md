@@ -48,7 +48,7 @@ File operations are relative to an `AgentFiles` folder in the working directory.
 Asking the agent to read file.txt actually reads AgentFiles/file.txt.
 Same with writes.
 
-Ensure there is a folder called 'Agent Directory' in the root directory for the agent to read.
+Ensure there is a folder called 'Agent Files' in the root directory for the agent to read.
 
 The code is simple and you can change this locally if you want. :)
 
