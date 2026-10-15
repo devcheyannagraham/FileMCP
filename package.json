@@ -1,6 +1,6 @@
 {
   "name": "@chey.dev/filemcp",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Local MCP filesystem server for reading, writing, and listing files and creating directories within an AgentFiles sandbox.",
   "homepage": "https://github.com/devcheyannagraham/FileMCP#readme",
   "bugs": {
@@ -14,7 +14,11 @@
   "bin": {
     "filemcp": "server.js"
   },
-  "files": ["server.js", "tools.js", "toolSchemas.js"],
+  "files": [
+    "server.js",
+    "tools.js",
+    "toolSchemas.js"
+  ],
   "engines": {
     "node": ">=20"
   },
