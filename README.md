@@ -46,8 +46,38 @@ missing package, so install FileMCP with the command above first.
 The npm package is named `@chey.dev/filemcp`; its executable is named `filemcp`.
 
 Configure your agent's MCP client to launch that command with its working directory
-set to the project whose `AgentFiles` sandbox you intend to use. No compilation or
-MCP client package is needed in this server project.
+set to the project whose `AgentFiles` sandbox you intend to use. No compilation is
+needed.
+
+## Connect From A Node.js App
+
+Use the connection helper instead of repeating MCP client and stdio setup:
+
+```js
+import { connectFileMcp } from "@chey.dev/filemcp/client";
+
+const mcp = await connectFileMcp({ cwd: process.cwd() });
+try {
+	const { tools } = await mcp.listTools();
+	console.log(tools.map((tool) => tool.name));
+} finally {
+	await mcp.close();
+}
+```
+
+The helper starts FileMCP and returns a connected MCP SDK client. No separate
+server command or MCP client installation is needed. Importing the helper alone
+does not start the server.
+
+`cwd` must name an existing directory; it defaults to the current working
+directory. Relative paths resolve from that directory. Files belong to
+`AgentFiles` beneath the selected directory, not beneath FileMCP's installation.
+
+Use the returned client's `listTools()` and `callTool()` methods in your existing
+agent tool-calling logic. The helper does not call an AI model or translate AI
+requests. Always await `mcp.close()` when finished to stop the child server.
+If connecting fails, the helper attempts transport cleanup and rejects with the
+original error.
 
 ## File Operations
 
@@ -74,5 +104,6 @@ restricted by this server.
 ## Project Files
 
 - `server.js`: creates the MCP server, registers tools, and starts stdio transport.
+- `client.js`: connects Node.js applications to the server over stdio.
 - `tools.js`: implements sandboxed filesystem tools.
 - `toolSchemas.js`: defines tool descriptions and Zod schemas.
