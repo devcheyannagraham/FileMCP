@@ -14,46 +14,65 @@ FileMCP exposes these MCP tools:
 - `readFileTool`: reads a UTF-8 text file from `AgentFiles`.
 - `listDirectoryTool`: lists files and folders under `AgentFiles`.
 
-The read and list tools include path traversal checks so requests cannot escape the `AgentFiles` directory.
+All five tools validate sandbox paths before accessing the filesystem. They reject
+absolute paths, `..` components, Windows device names and alternate data streams,
+symbolic links, junctions, and hard-linked files. File creation uses an exclusive
+write so concurrent requests cannot silently replace an existing file. Failed
+operations return MCP's `isError: true` flag.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20+
 - npm
 
 ## Install FileMCP
 
-From your root directory:
+Once published to npm, install it from your agent project's root directory:
 
 ```bash
-npm install --save https://github.com/devcheyannagraham/FileMCP.git
+npm install @chey.dev/filemcp
 ```
 
 ## Use With An Agent
 
-In your import the server and pass it into your agent config:
+Launch the installed executable as a stdio MCP server from your agent project:
 
-```ts
-import { filemcp } from "filemcp/server.ts";
-import { agent } from "<your-agent-sdk>";
-
-const myAgent = agent({
-  mcpServer: filemcp,
-});
+```bash
+npx --no-install filemcp
 ```
+
+`npx` runs a package's executable. `--no-install` prevents it from installing a
+missing package, so install FileMCP with the command above first.
+The npm package is named `@chey.dev/filemcp`; its executable is named `filemcp`.
+
+Configure your agent's MCP client to launch that command with its working directory
+set to the project whose `AgentFiles` sandbox you intend to use. No compilation or
+MCP client package is needed in this server project.
 
 ## File Operations
 
-File operations are relative to an `AgentFiles` folder in the working directory.
+File operations are relative to an `AgentFiles` folder in the server's startup
+working directory. This location is captured once and does not change if the
+process later changes its working directory.
 Asking the agent to read file.txt actually reads AgentFiles/file.txt.
 Same with writes.
 
-Ensure there is a folder called 'Agent Files' in the root directory for the agent to read.
+The server creates `AgentFiles` automatically. Use `.` to list its root. Create
+nested directories before writing files into them. Overwrites are allowed only
+through `overwriteFileTool`; requesting a new file never overwrites existing data.
 
-The code is simple and you can change this locally if you want. :)
+## Security Boundary
+
+These checks constrain paths supplied to this server's tools; they are not an
+operating-system sandbox. A hostile local process that can modify sandbox
+directories concurrently can race filesystem checks. Keep the sandbox and its
+parent directory under trusted control. For isolation from other local processes,
+run under a restricted OS account or in a container with only the intended sandbox
+mounted writable. Other filesystem or shell tools available to your agent are not
+restricted by this server.
 
 ## Project Files
 
-- `server.ts`: creates the MCP server, registers tools, and starts stdio transport.
-- `tools.ts`: implements the filesystem tools.
-- `toolSchemas.ts`: defines tool descriptions and Zod schemas.
+- `server.js`: creates the MCP server, registers tools, and starts stdio transport.
+- `tools.js`: implements sandboxed filesystem tools.
+- `toolSchemas.js`: defines tool descriptions and Zod schemas.

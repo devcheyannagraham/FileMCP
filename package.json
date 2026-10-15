@@ -1,7 +1,15 @@
 {
-  "name": "filemcp",
+  "name": "@chey.dev/filemcp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Local MCP filesystem server for reading, writing, and listing files and creating directories within an AgentFiles sandbox.",
+  "homepage": "https://github.com/devcheyannagraham/FileMCP#readme",
+  "bugs": {
+    "url": "https://github.com/devcheyannagraham/FileMCP/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devcheyannagraham/FileMCP.git"
+  },
   "main": "server.js",
   "bin": {
     "filemcp": "server.js"
@@ -12,10 +20,14 @@
   },
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check tools.js && node --check toolSchemas.js"
+    "check": "node --check server.js && node --check tools.js && node --check toolSchemas.js",
+    "test": "node --test tools.test.js",
+    "patch": "npm version patch && git push --follow-tags && npm publish --access public",
+    "minor": "npm version minor && git push --follow-tags && npm publish --access public",
+    "major": "npm version major && git push --follow-tags && npm publish --access public"
   },
   "keywords": [],
-  "author": "",
+  "author": "cheyanna graham",
   "license": "ISC",
   "type": "module",
   "dependencies": {
